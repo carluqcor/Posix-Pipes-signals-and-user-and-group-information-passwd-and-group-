@@ -16,7 +16,7 @@ int main (int argc, char **argv){
     int aflag = 0;
     int bflag = 0;
     int hflag = 0;
-    char *avalue = NULL, name[50], name2[50];
+    char *avalue = NULL, *uvalue = NULL, *ivalue = NULL, *gvalue = NULL, *dvalue = NULL, name[50], name2[50], name3[50];
     int index;
     int c;
 
@@ -52,208 +52,212 @@ int main (int argc, char **argv){
     // Sino, devuelve el caracter de opción encontrado para caracteres validos 
     // o devuelve ? si el caracter no es valido segun la cadena especificada.
     while ((c = getopt (argc, argv, "u:i:g:d:sa:bh")) != -1){
-        // Podemos observar qué pasa con las variables externas que va gestionando
-        //   getopt() durante las sucesivas llamadas. 
-        //   - optind Indice del siguiente elemento a procesar del vector argv[]
-        //   - optarg recoge el valor del argumento obligario de una opcion.
-        //   - optopt recoge el valor de la opcion cuando es desconocida (?) o INCOMPLETA respecto a las opciones indicadas.        
-        switch (c){
-		    case 'u':
-		        uflag = 1; //Bandera que indica que la opción -u se ha pasado por linea de argumentos
-                if(getpwnam(argv[2])==NULL){
-                    printf("Error, el nombre del usuario introducido no se encuentra en el fichero passwd\n");
-                    exit -1;
-                }else{
-                    pw = getpwnam(argv[2]);
-    		        printf("Nombre: %s\n", pw->pw_gecos);
-                    printf("Login: %s\n", pw->pw_name);
-                    printf("Password: %s\n", pw->pw_passwd);
-                    printf("UID: %d\n", pw->pw_uid);
-                    printf("Home: %s\n", pw->pw_dir);
-                    printf("Número de grupo principal: %d\n\n", pw->pw_gid);
-                }
-                break;
-		   
-            case 'i':
-		        iflag = 1;
-                if(getpwuid(atoi(argv[2]))==NULL){
-                    printf("Error, el id del usuario introducido no se encuentra en el fichero passwd\n");
-                    exit -1;
-                }else{
-                    pw = getpwuid(atoi(argv[2]));
-                    printf("Nombre: %s\n", pw->pw_gecos);
-                    printf("Login: %s\n", pw->pw_name);
-                    printf("Password: %s\n", pw->pw_passwd);
-                    printf("UID: %d\n", pw->pw_uid);
-                    printf("Home: %s\n", pw->pw_dir);
-                    printf("Número de grupo principal: %d\n\n", pw->pw_gid);
-                }
-                break;
-           
-            case 'g':
-                gflag = 1;
-                if(getgrnam(argv[2])==NULL){
-                    printf("Error, el nombre del grupo introducido no se encuentra en el fichero group\n");
-                    exit -1;
-                }else{
-                    gr=getgrnam(argv[2]);
-                    printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                    printf("Contraseña del grupo: %s\n", gr->gr_passwd);
-                    printf("Id del grupo: %d\n", gr->gr_gid);
-                    printf("Miembro grupo: %p\n", *gr->gr_mem);
-                }
-                break;
+        if(bflag!=0){
+            fprintf(stderr,"Error, estos argumentos no pueden ser usados a la vez\n");
+            exit -1;
+        }else{
+            // Podemos observar qué pasa con las variables externas que va gestionando
+            //   getopt() durante las sucesivas llamadas. 
+            //   - optind Indice del siguiente elemento a procesar del vector argv[]
+            //   - optarg recoge el valor del argumento obligario de una opcion.
+            //   - optopt recoge el valor de la opcion cuando es desconocida (?) o INCOMPLETA respecto a las opciones indicadas.        
+            switch (c){
+    		    case 'u':
+    		        uflag = 1; //Bandera que indica que la opción -u se ha pasado por linea de argumentos
+                    if(getpwnam(argv[2])==NULL){
+                        fprintf(stderr,"Error, el nombre del usuario introducido no se encuentra en el fichero passwd\n");
+                        exit -1;
+                    }else{
+                        pw = getpwnam(argv[2]);
+        		        printf("Nombre: %s\n", pw->pw_gecos);
+                        printf("Login: %s\n", pw->pw_name);
+                        printf("Password: %s\n", pw->pw_passwd);
+                        printf("UID: %d\n", pw->pw_uid);
+                        printf("Home: %s\n", pw->pw_dir);
+                        printf("Número de grupo principal: %d\n\n", pw->pw_gid);
+                        uvalue = optarg;
+                    }
+                    break;
+    		   
+                case 'i':
+    		        iflag = 1;
+                    if(getpwuid(atoi(argv[2]))==NULL){
+                        fprintf(stderr,"Error, el id del usuario introducido no se encuentra en el fichero passwd\n");
+                        exit -1;
+                    }else{
+                        pw = getpwuid(atoi(argv[2]));
+                        printf("Nombre: %s\n", pw->pw_gecos);
+                        printf("Login: %s\n", pw->pw_name);
+                        printf("Password: %s\n", pw->pw_passwd);
+                        printf("UID: %d\n", pw->pw_uid);
+                        printf("Home: %s\n", pw->pw_dir);
+                        printf("Número de grupo principal: %d\n\n", pw->pw_gid);
+                        ivalue = optarg;
+                    }
+                    break;
+               
+                case 'g':
+                    gflag = 1;
+                    if(getgrnam(argv[2])==NULL){
+                        fprintf(stderr,"Error, el nombre del grupo introducido no se encuentra en el fichero group\n");
+                        exit -1;
+                    }else{
+                        gr=getgrnam(argv[2]);
+                        printf("Nombre del grupo principal: %s\n", gr->gr_name);
+                        printf("Contraseña del grupo: %s\n", gr->gr_passwd);
+                        printf("Id del grupo: %d\n", gr->gr_gid);
+                        printf("Miembro grupo: %p\n", *gr->gr_mem);
+                        gvalue = optarg;
+                    }
+                    break;
 
-            case 'd':
-                dflag = 1;
-                if(getgrgid(atoi(argv[2]))==NULL){
-                    printf("Error, el id del grupo introducido no se encuentra en el fichero group\n");
-                    exit -1;
-                }else{
-                    gr=getgrgid(atoi(argv[2]));
-                    printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                    printf("Contraseña del grupo: %s\n", gr->gr_passwd);
-                    printf("Id del grupo: %d\n", gr->gr_gid);
-                    printf("Miembro grupo: %p\n", *gr->gr_mem);
-                }
-                break;
-            
-            case 's':
-                sflag = 1;
-                if(argv[2]!="/etc/group"){
-                    printf("Error, el archivo pasado como argumento no es el fichero de grupo.\n");
-                    exit -1;
-                }else{
-                    f=fopen(argv[2], "r");
+                case 'd':
+                    dflag = 1;
+                    if(getgrgid(atoi(argv[2]))==NULL){
+                        fprintf(stderr,"Error, el id del grupo introducido no se encuentra en el fichero group\n");
+                        exit -1;
+                    }else{
+                        gr=getgrgid(atoi(argv[2]));
+                        printf("Nombre del grupo principal: %s\n", gr->gr_name);
+                        printf("Contraseña del grupo: %s\n", gr->gr_passwd);
+                        printf("Id del grupo: %d\n", gr->gr_gid);
+                        printf("Miembro grupo: %p\n", *gr->gr_mem);
+                        dvalue = optarg;
+                    }
+                    break;
+                
+                case 's':
+                    sflag = 1;
+                    f=fopen("/etc/group", "r");
                     if(f==NULL){
-                      printf("Error en la lectura del fichero %s\n", argv[2]);
+                      fprintf(stderr,"Error en la lectura del fichero %s\n", argv[2]);
                       exit(-1);
                     }
-                       while(fscanf(f, "%s:%s\n", name, name2)==2){
-                          printf("NOmbre: %s\n", name);
-                          printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                          printf("Contraseña del grupo: %s\n", gr->gr_passwd);
-                          printf("Id del grupo: %d\n", gr->gr_gid);
-                          printf("Miembro grupo: %p\n\n", gr->gr_mem);
-                       }
+                    while(fscanf(f, "%[^:]:x:%s%*[^\n]",name2, name)==2){
+                        gr=getgrgid(atoi(name));
+                        printf("Nombre del grupo principal: %s\n", gr->gr_name);
+                        printf("Contraseña del grupo: %s\n", gr->gr_passwd);
+                        printf("Id del grupo: %d\n", gr->gr_gid);
+                        printf("Miembro grupo: %p\n\n", gr->gr_mem);
+                    }
                     fclose(f);
-                }
+                    break;
+
+                case 'a':
+                    aflag=1;
+                    if(getpwnam(argv[2])==NULL){
+                        fprintf(stderr,"Error, el usuario del sistema es inexistente\n");
+                        exit -1;
+                    }else{
+                        pw = getpwnam(argv[2]);
+                        printf("Nombre: %s\n", pw->pw_gecos);
+                        printf("Login: %s\n", pw->pw_name);
+                        printf("Password: %s\n", pw->pw_passwd);
+                        printf("UID: %d\n", pw->pw_uid);
+                        printf("Home: %s\n", pw->pw_dir);
+                        printf("Número de grupo principal: %d\n\n", pw->pw_gid);
+                        gr=getgrgid(pw->pw_gid);
+                        printf("Nombre del grupo principal: %s\n", gr->gr_name);
+                        printf("Contraseña del grupo: %s\n", gr->gr_passwd);
+                        printf("Id del grupo: %d\n", gr->gr_gid);
+                        printf("Miembro grupo: %p\n\n", gr->gr_mem);
+
+                        // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuasrio
+                        avalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere c
+                    }
+                    break;
+
+                case 'b':
+                    //Se imprime el campo de la estructura que nos interesa
+                    bflag = 1;
+                    if(argv[2]){
+                        fprintf(stderr,"Error, esta opción no necesita argumentos\n");
+                        printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
+                        exit -1;
+                    }else{
+                        lgn = (getenv("USER"));
+                        pw = getpwnam(lgn);
+                        gr=getgrgid(pw->pw_gid);
+                        printf("Nombre del grupo principal: %s\n", gr->gr_name);
+                        printf("Id del grupo: %d\n", gr->gr_gid);
+                    }
+                    break;
+
+                case 'h':
+                    hflag=1;
+                    if(argv[2]){
+                        fprintf(stderr, "Error, esta opción no necesita argumentos\n");
+                        printf("La opción -h muestra la información sobre los comandos posibles.\n");
+                        exit -1;
+                    }else{
+                        printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
+                        printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
+                        printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
+                        printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
+                        printf("La opción -s se muestra todos los grupos del sistema junto a su ID.\n");
+                        printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
+                        printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
+                        printf("La opción -h muestra la información sobre los comandos posibles.\n");
+                        printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
+                    }
                 break;
 
-            case 'a':
-                aflag=1;
-                if(getpwnam(argv[2])==NULL){
-                    printf("Error, el usuario del sistema es inexistente\n");
-                    exit -1;
-                }else{
-                    pw = getpwnam(argv[2]);
-                    printf("Nombre: %s\n", pw->pw_gecos);
-                    printf("Login: %s\n", pw->pw_name);
-                    printf("Password: %s\n", pw->pw_passwd);
-                    printf("UID: %d\n", pw->pw_uid);
-                    printf("Home: %s\n", pw->pw_dir);
-                    printf("Número de grupo principal: %d\n\n", pw->pw_gid);
-                    gr=getgrgid(pw->pw_gid);
-                    printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                    printf("Contraseña del grupo: %s\n", gr->gr_passwd);
-                    printf("Id del grupo: %d\n", gr->gr_gid);
-                    printf("Miembro grupo: %p\n\n", gr->gr_mem);
+    	        case '?': //Opcion no reconocida o INCOMPLETA. Probar tambien la diferencia entre ejecutar %$>./a.out m   ó   %$>./a.out -m
+                    if (optopt == 'u'){ //Para el caso de que 'c' no tenga el argumento obligatorio.
+        	            fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
+        	      
+                    }else if (optopt == 'i'){
+                        fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
 
-                    // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuasrio
-                    avalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere c
-                }
-                break;
+                    }else if (optopt == 'g'){
+                        fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
 
-            case 'b':
-                //Se imprime el campo de la estructura que nos interesa
-                bflag = 1;
-                if(argv[2]){
-                    printf("Error, esta opción no necesita argumentos\n");
-                    printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
-                    exit -1;
-                }else{
-                    lgn = (getenv("USER"));
-                    pw = getpwnam(lgn);
-                    gr=getgrgid(pw->pw_gid);
-                    printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                    printf("Id del grupo: %d\n", gr->gr_gid);
-                }
-                break;
+                    }else if (optopt == 'd'){
+                        fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
 
-            case 'h':
-                hflag=1;
-                if(argv[2]){
-                    printf("Error, esta opción no necesita argumentos\n");
-                    printf("La opción -h muestra la información sobre los comandos posibles.\n");
-                    exit -1;
-                }else{
-                    printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
-                    printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
-                    printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
-                    printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
-                    printf("La opción -s se muestra todos los grupos del sistema junto a su ID.\n");
-                    printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
-                    printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
-                    printf("La opción -h muestra la información sobre los comandos posibles.\n");
-                    printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
-                }
-            break;
+                    }else if (optopt == 'a'){
+                        fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
 
-	        case '?': //Opcion no reconocida o INCOMPLETA. Probar tambien la diferencia entre ejecutar %$>./a.out m   ó   %$>./a.out -m
-                if (optopt == 'u'){ //Para el caso de que 'c' no tenga el argumento obligatorio.
-    	            fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
-    	      
-                }else if (optopt == 'i'){
-                    fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
+                    }else if (optopt == 's'){
+                        fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -s se muestra todos los grupos del sistema junto a su ID.\n");
 
-                }else if (optopt == 'g'){
-                    fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
+                    }else if (isprint (optopt)){ //Se mira si el caracter es imprimible
+        	            fprintf (stderr, "Opción desconocida \"-%c\". Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
+                        printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
+                        printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
+                        printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
+                        printf("La opción -s se muestra todos los grupos del sistema junto a su ID.\n");
+                        printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
+                        printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
+                        printf("La opción -h muestra la información sobre los comandos posibles.\n");
+                        printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
 
-                }else if (optopt == 'd'){
-                    fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
-
-                }else if (optopt == 'a'){
-                    fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
-
-                }else if (optopt == 's'){
-                    fprintf (stderr, "La opción %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -s <Fichero de Grupo> se muestra todos los grupos del sistema junto a su ID.\n");
-
-                }else if (isprint (optopt)){ //Se mira si el caracter es imprimible
-    	            fprintf (stderr, "Opción desconocida \"-%c\". Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
-                    printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
-                    printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
-                    printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
-                    printf("La opción -s <Fichero de Grupo> se muestra todos los grupos del sistema junto a su ID.\n");
-                    printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
-                    printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
-                    printf("La opción -h muestra la información sobre los comandos posibles.\n");
-                    printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
-
-                }else{ //Caracter no imprimible o especial
-    	            fprintf (stderr, "Caracter `\\x%x'. Valor de opterr = %d\n", optopt, opterr);
-                    printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
-                    printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
-                    printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
-                    printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
-                    printf("La opción -s <Fichero de Grupo> se muestra todos los grupos del sistema junto a su ID.\n");
-                    printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
-                    printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
-                    printf("La opción -h muestra la información sobre los comandos posibles.\n");
-                    printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
-                }
-                return 1;  //Finaliza el programa
-	     
-            default:
-                abort();
+                    }else{ //Caracter no imprimible o especial
+        	            fprintf (stderr, "Caracter `\\x%x'. Valor de opterr = %d\n", optopt, opterr);
+                        printf("La opción -u <Nombre de Usuario> muestra el nombre de usuario de passwd.\n");
+                        printf("La opción -i <ID de Usuario> muestra el ID de usuario de passwd.\n");
+                        printf("La opción -g <Nombre de Grupo> muestra el nombre del grupo del usuario de group.\n");
+                        printf("La opción -d <ID de Grupo> muestra el ID del grupo del sistema de group.\n");
+                        printf("La opción -s se muestra todos los grupos del sistema junto a su ID.\n");
+                        printf("La opción -a <Nombre de Usuario> muestra la información correspondiente de passwd y group.\n");
+                        printf("La opción -b muestra la información correspondiente al grupo del usuario actual.\n");
+                        printf("La opción -h muestra la información sobre los comandos posibles.\n");
+                        printf("Si se ejecuta sin opciones muestra la información sobre passwd y group del usuario actual en Español o Inglés.\n");
+                    }
+                    return 1;  //Finaliza el programa
+    	     
+                default:
+                    abort();
+            }
+            printf("optind: %d, optarg: %s, optopt: %c, opterr: %d\n", optind, optarg, optopt, opterr);
         }
-        printf("optind: %d, optarg: %s, optopt: %c, opterr: %d\n", optind, optarg, optopt, opterr);
     }
 
     if(uflag==0 && iflag==0 && gflag==0 && dflag==0 && sflag==0 && aflag==0 && bflag==0 && hflag==0){
@@ -310,9 +314,17 @@ int main (int argc, char **argv){
     // Comprueba y razona si se llegaría a ejecutar y en qué circunstancias
     if(avalue==NULL)
         avalue="ValorPorDefecto";
+    if(uvalue==NULL)
+        uvalue="ValorPorDefecto";
+    if(ivalue==NULL)
+        ivalue="ValorPorDefecto";
+    if(gvalue==NULL)
+        gvalue="ValorPorDefecto";
+    if(dvalue==NULL)
+        dvalue="ValorPorDefecto";
 
     //Para visualizar que opciones se han activado y sus argumentos
-    printf ("uflag=%d, iflag=%d, gflag=%d, dflag=%d, sflag=%d, aflag=%d, bflag=%d, hflag=%d, cvalue = %s\n", uflag, iflag, gflag, dflag, sflag, aflag, bflag, hflag, avalue);
+    printf ("uflag=%d, iflag=%d, gflag=%d, dflag=%d, sflag=%d, aflag=%d, bflag=%d, hflag=%d, avalue = %s, uvalue = %s, ivalue = %s, gvalue = %s, dvalue = %s\n", uflag, iflag, gflag, dflag, sflag, aflag, bflag, hflag, avalue, uvalue, ivalue, gvalue, dvalue);
     
     return 0;
 }
